@@ -1,6 +1,6 @@
 Инструкция по запуску:
 - создать бота через папу @BotFather
-- установить docker, выставить TELEGRAM_BOT_TOKEN в Dockerfile и запустить скрипт run_in_docker.sh
+- установить docker, выставить TELEGRAM_BOT_TOKEN в .env и запустить бота командой "docker compose up -d"
 - выключить приватность через папу @BotFather (/mybots -> <bot> -> Bot Settings -> Group Privacy -> Turn Of)
 - добавить бота в целевой чат
 - запустить командой /start
