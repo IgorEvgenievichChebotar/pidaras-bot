@@ -52,7 +52,7 @@ def handle_message(update: Update, context: CallbackContext) -> None:
 def check_inactive_users(context: CallbackContext) -> None:
     now = datetime.now()
     for chat_id, last_time in last_active.items():
-        timeout_sec = os.getenv("TIMEOUT_SEC") if os.getenv("TIMEOUT_SEC") is not None else 86400
+        timeout_sec = os.getenv("TIMEOUT_SEC") or 86400
         if now - last_time > timedelta(seconds=timeout_sec):
             user_data = user_info.get(chat_id)
             if user_data:
