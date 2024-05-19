@@ -52,7 +52,8 @@ def handle_message(update: Update, context: CallbackContext) -> None:
 def check_inactive_users(context: CallbackContext) -> None:
     now = datetime.now()
     for chat_id, last_time in last_active.items():
-        if now - last_time > timedelta(hours=24):
+        timeout_sec = os.getenv("TIMEOUT_SEC") if os.getenv("TIMEOUT_SEC") is not None else 86400
+        if now - last_time > timedelta(seconds=timeout_sec):
             user_data = user_info.get(chat_id)
             if user_data:
                 username = user_data.get("username")
@@ -86,7 +87,7 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
     job_queue = updater.job_queue
-    job_queue.run_repeating(check_inactive_users, interval=60, first=0)
+    job_queue.run_repeating(check_inactive_users, interval=1, first=0)
 
     updater.start_polling()
     updater.idle()
