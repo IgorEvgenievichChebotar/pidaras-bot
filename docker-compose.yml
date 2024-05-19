@@ -1,0 +1,7 @@
+services:
+  bot:
+    container_name: pidaras-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
