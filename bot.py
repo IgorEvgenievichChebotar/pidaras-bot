@@ -14,39 +14,61 @@ logger = logging.getLogger(__name__)
 # Словарь для хранения времени последнего сообщения и имен пользователей
 last_active = {}
 
-# Словарь для хранения ID чатов по имени пользователя
-usernames_to_chat_ids = {}
+# Словарь для хранения информации о пользователях (chat_id, username, имя)
+user_info = {}
 
 
 # Команда /start
 def start(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
-    usernames_to_chat_ids[user.username] = update.message.chat_id
-    update.message.reply_text(f'Игра началась')
+    chat_id = update.message.chat_id
+    username = user.username
+    name = f"{user.first_name} {user.last_name}" if user.last_name else user.first_name
+
+    user_info[chat_id] = {
+        "username": username,
+        "name": name
+    }
+    
+    update.message.reply_text(f'игра началась')
 
 
 # Обработка всех текстовых сообщений
 def handle_message(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
-    if user.username:
-        usernames_to_chat_ids[user.username] = update.message.chat_id
-    last_active[user.username] = datetime.now()
+    chat_id = update.message.chat_id
+    username = user.username
+    name = f"{user.first_name} {user.last_name}" if user.last_name else user.first_name
+
+    user_info[chat_id] = {
+        "username": username,
+        "name": name
+    }
+    
+    last_active[chat_id] = datetime.now()
 
 
 # Функция для проверки неактивных пользователей
 def check_inactive_users(context: CallbackContext) -> None:
     now = datetime.now()
-    for username, last_time in last_active.items():
+    for chat_id, last_time in last_active.items():
         if now - last_time > timedelta(hours=24):
-            chat_id = usernames_to_chat_ids.get(username)
-            if chat_id:
+            user_data = user_info.get(chat_id)
+            if user_data:
+                username = user_data.get("username")
+                name = user_data.get("name")
                 try:
+                    if username:
+                        text = f"<a href='tg://user?id={chat_id}'>@{username}</a> пидарас"
+                    else:
+                        text = f"{name} пидарас!"
+                    
                     context.bot.send_message(
                         chat_id=chat_id,
-                        text=f"<a href='tg://user?id={username}'>@{username}</a> пидарас",
+                        text=text,
                         parse_mode=ParseMode.HTML
                     )
-                    last_active[username] = now  # Обновляем время последней активности
+                    last_active[chat_id] = now  # Обновляем время последней активности
                 except Exception as e:
                     logger.error(f"Error: {e}")
 
